@@ -5,33 +5,23 @@ import java.util.Scanner;
 public class LojaDeDiscos {
 
     private static final List<Genero> generos = new ArrayList<>();
+    private static final List<Disco> discos = new ArrayList<>(); // Lista para armazenar os discos
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        // --- Exibindo as informações com o novo método getInfo() ---
-        System.out.println("--- Relatório Completo do Artista e Obra ---");
-
-        // 1. Criação da instância de Genero
+        // Populando dados iniciais para teste
         Genero generoMpb = new Genero(
                 "MPB",
                 "Música Popular Brasileira, conhecida por sua riqueza melódica e poética."
         );
+        generos.add(generoMpb);
 
-        // 2. Criação da instância de Disco
         Disco discoClubeDaEsquina = new Disco(
                 "Clube da Esquina",
                 1972,
                 generoMpb
         );
-
-        // 3. Criação da instância de Autor
-        Autor autorMilton = new Autor(
-                "Milton Nascimento & Lô Borges",
-                discoClubeDaEsquina
-        );
-        // Chamada única que gera o relatório completo em cascata
-        System.out.println(autorMilton.getInfo());
-
+        discos.add(discoClubeDaEsquina);
 
         int opcao;
         do {
@@ -44,7 +34,7 @@ public class LojaDeDiscos {
                     menuGeneros();
                     break;
                 case 2:
-                    System.out.println("Opção [Discos] ainda não implementada.");
+                    menuDiscos(); // Chamada para o novo menu de discos
                     break;
                 case 3:
                     System.out.println("Opção [Autores] ainda não implementada.");
@@ -67,12 +57,13 @@ public class LojaDeDiscos {
         System.out.print("Escolha uma opção: ");
     }
 
+    // --- Lógica de Gêneros (já implementada anteriormente) ---
     private static void menuGeneros() {
         int opcao;
         do {
             exibirMenuGeneros();
             opcao = scanner.nextInt();
-            scanner.nextLine(); // Consumir nova linha
+            scanner.nextLine();
 
             switch (opcao) {
                 case 1:
@@ -118,12 +109,10 @@ public class LojaDeDiscos {
 
     private static void excluirGenero() {
         listarGeneros();
-        if (generos.isEmpty()) {
-            return;
-        }
+        if (generos.isEmpty()) return;
         System.out.print("Digite o número do gênero a ser excluído: ");
         int indice = scanner.nextInt() - 1;
-        scanner.nextLine(); // Consumir nova linha
+        scanner.nextLine();
 
         if (indice >= 0 && indice < generos.size()) {
             generos.remove(indice);
@@ -139,7 +128,102 @@ public class LojaDeDiscos {
             System.out.println("Nenhum gênero cadastrado.");
         } else {
             for (int i = 0; i < generos.size(); i++) {
-                System.out.println((i + 1) + ". " + generos.get(i).getInfo());
+                System.out.println((i + 1) + ". " + generos.get(i).getNome());
+            }
+        }
+    }
+
+    // --- Nova Lógica de Discos ---
+    private static void menuDiscos() {
+        int opcao;
+        do {
+            exibirMenuDiscos();
+            opcao = scanner.nextInt();
+            scanner.nextLine(); // Consumir nova linha
+
+            switch (opcao) {
+                case 1:
+                    novoDisco();
+                    break;
+                case 2:
+                    ativarInativarDisco();
+                    break;
+                case 3:
+                    listarDiscos();
+                    break;
+                case 4:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        } while (opcao != 4);
+    }
+
+    private static void exibirMenuDiscos() {
+        System.out.println("\n--- DISCOS ---");
+        System.out.println("[1] Novo Disco");
+        System.out.println("[2] Ativar/Inativar Disco");
+        System.out.println("[3] Listar Discos");
+        System.out.println("[4] Voltar");
+        System.out.print("Escolha uma opção: ");
+    }
+
+    private static void novoDisco() {
+        if (generos.isEmpty()) {
+            System.out.println("É necessário ter ao menos um gênero cadastrado para criar um disco.");
+            return;
+        }
+
+        System.out.print("Digite o título do novo disco: ");
+        String titulo = scanner.nextLine();
+        System.out.print("Digite o ano de lançamento do disco: ");
+        int ano = scanner.nextInt();
+        scanner.nextLine(); // Consumir nova linha
+
+        listarGeneros();
+        System.out.print("Escolha o número do gênero para este disco: ");
+        int indiceGenero = scanner.nextInt() - 1;
+        scanner.nextLine(); // Consumir nova linha
+
+        if (indiceGenero >= 0 && indiceGenero < generos.size()) {
+            Genero generoSelecionado = generos.get(indiceGenero);
+            try {
+                discos.add(new Disco(titulo, ano, generoSelecionado));
+                System.out.println("Disco adicionado com sucesso!");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Erro ao criar disco: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Número de gênero inválido.");
+        }
+    }
+
+    private static void ativarInativarDisco() {
+        listarDiscos();
+        if (discos.isEmpty()) {
+            return;
+        }
+        System.out.print("Digite o número do disco para alterar o status (Ativar/Inativar): ");
+        int indice = scanner.nextInt() - 1;
+        scanner.nextLine(); // Consumir nova linha
+
+        if (indice >= 0 && indice < discos.size()) {
+            Disco disco = discos.get(indice);
+            disco.setAtivo(!disco.isAtivo()); // Inverte o status atual
+            System.out.printf("Status do disco \"%s\" alterado para %s.\n", disco.getTitulo(), (disco.isAtivo() ? "Ativo" : "Inativo"));
+        } else {
+            System.out.println("Número inválido.");
+        }
+    }
+
+    private static void listarDiscos() {
+        System.out.println("\n--- LISTA DE DISCOS ---");
+        if (discos.isEmpty()) {
+            System.out.println("Nenhum disco cadastrado.");
+        } else {
+            for (int i = 0; i < discos.size(); i++) {
+                System.out.println((i + 1) + ". " + discos.get(i).getInfo());
             }
         }
     }
