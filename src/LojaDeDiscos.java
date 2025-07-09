@@ -5,7 +5,8 @@ import java.util.Scanner;
 public class LojaDeDiscos {
 
     private static final List<Genero> generos = new ArrayList<>();
-    private static final List<Disco> discos = new ArrayList<>(); // Lista para armazenar os discos
+    private static final List<Disco> discos = new ArrayList<>();
+    private static final List<Autor> autores = new ArrayList<>(); // Lista para armazenar os autores
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -23,6 +24,13 @@ public class LojaDeDiscos {
         );
         discos.add(discoClubeDaEsquina);
 
+        Autor autorMilton = new Autor(
+                "Milton Nascimento & Lô Borges",
+                discoClubeDaEsquina
+        );
+        autores.add(autorMilton);
+
+
         int opcao;
         do {
             exibirMenuPrincipal();
@@ -34,10 +42,10 @@ public class LojaDeDiscos {
                     menuGeneros();
                     break;
                 case 2:
-                    menuDiscos(); // Chamada para o novo menu de discos
+                    menuDiscos();
                     break;
                 case 3:
-                    System.out.println("Opção [Autores] ainda não implementada.");
+                    menuAutores(); // Chamada para o novo menu de autores
                     break;
                 case 4:
                     System.out.println("Saindo...");
@@ -57,7 +65,7 @@ public class LojaDeDiscos {
         System.out.print("Escolha uma opção: ");
     }
 
-    // --- Lógica de Gêneros (já implementada anteriormente) ---
+    // --- Lógica de Gêneros (implementada anteriormente) ---
     private static void menuGeneros() {
         int opcao;
         do {
@@ -133,7 +141,8 @@ public class LojaDeDiscos {
         }
     }
 
-    // --- Nova Lógica de Discos ---
+
+    // --- Lógica de Discos (implementada anteriormente) ---
     private static void menuDiscos() {
         int opcao;
         do {
@@ -224,6 +233,78 @@ public class LojaDeDiscos {
         } else {
             for (int i = 0; i < discos.size(); i++) {
                 System.out.println((i + 1) + ". " + discos.get(i).getInfo());
+            }
+        }
+    }
+
+
+    // --- Nova Lógica de Autores ---
+    private static void menuAutores() {
+        int opcao;
+        do {
+            exibirMenuAutores();
+            opcao = scanner.nextInt();
+            scanner.nextLine(); // Consumir nova linha
+
+            switch (opcao) {
+                case 1:
+                    novoAutor();
+                    break;
+                case 2:
+                    listarAutores();
+                    break;
+                case 3:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        } while (opcao != 3);
+    }
+
+    private static void exibirMenuAutores() {
+        System.out.println("\n--- AUTORES ---");
+        System.out.println("[1] Novo Autor");
+        System.out.println("[2] Listar Autores");
+        System.out.println("[3] Voltar");
+        System.out.print("Escolha uma opção: ");
+    }
+
+    private static void novoAutor() {
+        if (discos.isEmpty()) {
+            System.out.println("É necessário ter ao menos um disco cadastrado para criar um autor.");
+            return;
+        }
+
+        System.out.print("Digite o nome do novo autor: ");
+        String nome = scanner.nextLine();
+
+        listarDiscos();
+        System.out.print("Escolha o número do disco principal para este autor: ");
+        int indiceDisco = scanner.nextInt() - 1;
+        scanner.nextLine(); // Consumir nova linha
+
+        if (indiceDisco >= 0 && indiceDisco < discos.size()) {
+            Disco discoSelecionado = discos.get(indiceDisco);
+            try {
+                autores.add(new Autor(nome, discoSelecionado));
+                System.out.println("Autor adicionado com sucesso!");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Erro ao criar autor: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Número de disco inválido.");
+        }
+    }
+
+    private static void listarAutores() {
+        System.out.println("\n--- LISTA DE AUTORES ---");
+        if (autores.isEmpty()) {
+            System.out.println("Nenhum autor cadastrado.");
+        } else {
+            for (int i = 0; i < autores.size(); i++) {
+                System.out.println("\n--- Autor " + (i + 1) + " ---");
+                System.out.println(autores.get(i).getInfo());
             }
         }
     }
